@@ -1,0 +1,67 @@
+---
+title: "SCOUT REPORT"
+author: "Max Vayá Abad (@Maaxva2)"
+date: "`r Sys.Date()`"
+output:
+  html_document: default
+  pdf_document: default
+---
+## PRESENTACIO
+# INTRODUCCIO
+Aquest informe presenta un conjunt exhaustiu de mètriques estadístiques dels jugadors de camp de les cinc principals lligues europees (Premier League, La Liga, Serie A, Bundesliga i Ligue 1). L'anàlisi se centra exclusivament en jugadors que han disputat un mínim de 500 minuts amb un equip durant la temporada 2024/25, garantint així la representativitat estadística de les dades. Totes les mètriques han estat normalitzades per 90 minuts de joc per facilitar la comparació entre jugadors amb diferents volums de participació. Addicionalment, les variables defensives han estat ajustades segons el percentatge de possessió de l'equip per obtenir una perspectiva més precisa del rendiment individual.
+
+# FUNCIONAMENT
+Aquest sistema d'anàlisi ofereix vuit modalitats de visualització diferents per avaluar el rendiment dels jugadors: radar charts individuals i comparatius (tant amb valors absoluts com amb percentils), gràfics de barres de les mètriques principals, gràfics de barres del top 8 de totes les variables, scatter plots i mapes de tirs. Cada visualització està dissenyada per proporcionar una perspectiva específica del jugador seleccionat. El sistema permet tant l'execució manual de funcions individuals com la càrrega automàtica de tot el conjunt d'anàlisis mitjançant l'script complet. 
+
+**NOTA CRÍTICA: És imprescindible carregar prèviament l'entorn de treball "Funcions Scout Report.Rdata" per al correcte funcionament del sistema.**
+
+# PARAMETRES
+En aquesta secció es carreguen les bases de dades i es defineixen els paràmetres necessaris per a la generació automàtica dels gràfics. Es recomana encaridament revisar la taula 'DATA' per verificar la correcta ortografia del nom del jugador i confirmar la seva posició assignada abans d'executar les visualitzacions.
+
+```{r setup, include=FALSE}
+load("Funcions Scout Report.Rdata")
+View(DATA)
+library(tidyverse)
+library(worldfootballR)
+library(janitor)
+library(progress)
+library(dplyr)
+library(ggplot2)
+library(ggrepel)
+library(scales)
+library(fmsb)
+```
+
+```{r parameters, include=FALSE}
+JUGADOR <- "Marcus Rashford"
+JUGADOR2 <- "Anthony Gordon"
+POSICIO <- "FW,MF"
+```
+
+## SCOUT REPORT
+Aquest informe constitueix una eina de consulta i anàlisi preliminar. Les conclusions derivades dels gràfics observats poden variar segons la perspectiva d'anàlisi, tot i que s'inclouen comentaris orientatius per facilitar la interpretació correcta de cada visualització.
+
+# RADARCHARTS
+```{r radarcharts, echo=FALSE, warning=FALSE, message=FALSE}
+create_raw_radar_1(DATA,JUGADOR)
+create_raw_radar_2(DATA,JUGADOR,JUGADOR2)
+create_perc_radar_1(DATA,JUGADOR)
+create_perc_radar_2(DATA,JUGADOR,JUGADOR2)
+```
+
+**INTERPRETACIÓ DELS RADAR CHARTS**: En aquesta versió, no s'aplica cap filtre posicional durant la generació dels gràfics, permetent una comparació universal entre tots els jugadors de la base de dades. És fonamental distingir entre els radar charts amb valors absoluts (primera modalitat) i els basats en percentils (segona modalitat). Els percentils redistribueixen tots els jugadors en una escala del 0 al 100, eliminant les unitats originals de les mètriques i les diferències quantitatives entre jugadors. Cal recordar que l'estandarització per 90 minuts i l'ajust per possessió poden generar interpretacions complexes, especialment en jugadors utilitzats habitualment com a revulsius o suplents amb patrons de joc diferenciats.
+
+# BARPLOTS
+```{r barplots, echo=FALSE, warning=FALSE, message=FALSE}
+create_barplot_radar(DATA,JUGADOR)
+create_top8_barplot(DATA,JUGADOR,n_metriques = 8)
+```
+**INTERPRETACIÓ DELS GRÀFICS DE BARRES**: Aquestes visualitzacions estan dissenyades per identificar i quantificar els punts forts del jugador analitzat. Utilitzant percentils com a mètrica de referència, valors propers al 100% indiquen un rendiment superior respecte al conjunt de jugadors de la mostra. Aquests gràfics permeten una identificació ràpida de les àrees d'excel·lència i les oportunitats de millora del jugador.
+
+# GRAFIC DE PUNTS
+```{r scatterplot, echo=FALSE, warning=FALSE, message=FALSE}
+create_scatterplot_best_metrics(DATA,JUGADOR,POSICIO,usar_minuts = TRUE)
+```
+
+**INTERPRETACIÓ DEL SCATTER PLOT**: Aquesta funció genera automàticament un gràfic de dispersió focalitzat en les mètriques de major rendiment del jugador seleccionat. Quan el paràmetre 'usar_minuts' està activat (TRUE), la mida dels punts és proporcional als minuts disputats, oferint una perspectiva del volum de participació. En cas contrari (FALSE), la mida dels punts varia segons la variable de referència no estandaritzada de cada àrea d'especialització: Ocasions Creades (xG + xA), Dribbling (Tocs totals), Joc de Passada (Passades completades) i Defensa (Accions defensives totals).
+
